@@ -36,7 +36,7 @@ function return_nearest_fruit (x, y) {
 		{
 			if(board[i][j] > 0)
 			{
-				fruit_distances.push([board[i][j], Math.abs(i -x)+Math.abs(j -y), direction(i - x, j -y)]);
+				fruit_distances.push([board[i][j], Math.abs(i -x)+Math.abs(j -y), ubisoft_direction(i - x, j -y)]);
 				console.log(i +", " + j);
 
 			}
@@ -56,7 +56,7 @@ function return_nearest_fruit (x, y) {
 	return ret;
 }
 
-function direction (dx, dy) {
+function ubisoft_direction (dx, dy) {
 	if(dy > dx)
 		if(dy > -dx)
 			return SOUTH;
