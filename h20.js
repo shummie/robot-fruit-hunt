@@ -7,9 +7,9 @@ function make_move() {
    var c = get_my_y();
    var type;
    // we found an item! take it!
-   for(var numr=1; numr<5; numr++)
+   for(var numr=1; numr<WIDTH; numr++)
    {
-      for(var numc=1; numc<5; numc++)
+      for(var numc=1; numc<HEIGHT; numc++)
       {
    if (board[r][c] > 0) {
        return TAKE;
