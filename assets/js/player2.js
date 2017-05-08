@@ -28,10 +28,10 @@ var GamePlay = {
           } else {
             GamePlay.autoplay = false;
           }
-        });        
-        
+        });
+
         GamePlay.worksafe = false;
-        
+
         GamePlay.gameOver = false;
         GamePlay.autoplay = false;
         GamePlay.show_breadcrumbs = false;
@@ -57,17 +57,17 @@ var GamePlay = {
         GamePlay.itemImages[itemImageUrls.length - 1].onload = function(){
             GamePlay.setupNewGame();
         };
-        
+
         // Code added to track games over time
         GamePlay.p1wins = 0;
         GamePlay.p2wins = 0;
         GamePlay.ties = 0;
-        
+
 
     },
     nextMove: function() {
         if (!GamePlay.gameOver) {
-            Board.processMove(); 
+            Board.processMove();
             GamePlay.draw();
         } else {
             if (GamePlay.autoplay) {
@@ -78,7 +78,7 @@ var GamePlay = {
     },
     setupNewGame: function(boardNumber) {
         // Create a new board setup according to the following priority:
-        // 
+        //
         // 1. If a board number is passed in, use that.
         // 2. If the bot has default_board_number() defined, use that.
         // 3. Generate a random board number.
@@ -108,7 +108,7 @@ var GamePlay = {
             document.getElementById('game_view').width = GamePlay.itemTypeCount * 50 + WIDTH * 50;
             document.getElementById('game_view').height = HEIGHT * 50;
         } else {
-            
+
             document.getElementById('grid').width = GamePlay.itemTypeCount * 50 + WIDTH * 50;
             document.getElementById('grid').height = HEIGHT * 50;
             document.getElementById('game_view').width = GamePlay.itemTypeCount * 50 + WIDTH * 50;
@@ -136,7 +136,7 @@ var GamePlay = {
         GamePlay.drawPlayerOne(ctx, Board.board);
         GamePlay.displayScore(ctx, Board.board);
         }
-        
+
         if (GamePlay.mode == "play") {
            var score = Board.checkGameOver();
            Board.checkTimeout();
@@ -165,16 +165,17 @@ var GamePlay = {
                    GamePlay.ties += 1;
                    GamePlay.gameOver = true;
                }
-               
+
                GamePlay.displayMatchPoints(ctx, Board.board);
-               
+
                if (!GamePlay.autoplay) {
                 GamePlay.mode = "pause";
                 return;
                } else {
                    GamePlay.setupNewGame();
+                   return;
                }
-               
+
            }
            GamePlay.displayMatchPoints(ctx, Board.board);
            Board.processMove();
@@ -254,7 +255,7 @@ var GamePlay = {
     },
     setBoardSpeed: function() {
         var boardSpeed;
-        
+
         boardSpeed = parseInt($('#board_speed').val());
         if (!isNaN(boardSpeed)) {
             GamePlay.boardSpeed = boardSpeed;
