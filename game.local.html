@@ -10,6 +10,8 @@
     <script src="player_2.js"></script>
     <script src="assets/js/player2.js"></script>
     <script src="assets/js/jquery.min.js"></script>
+    <script src="bots/simplebot.js"></script>
+    <script src="bots/randombot.js"></script>
 </head>
 <body onload="GamePlay.init()">
     <canvas id="grid"></canvas>
@@ -21,6 +23,7 @@
         <span class="play button">play</span>
         <span class="forward button">forward</span>
         <span class=""><label><input type="checkbox" id="check_breadcrumbs"/> Show breadcrumbs</label></span>
+        <span class=""><label><input type="checkbox" id="check_autoplay"/> Play continuously</label></span>
         <br><br>
         <label>Board Number: </label><input type="text" id="board_number"/><button id="set_board">Set</button>
         <br>
@@ -32,6 +35,9 @@
                 <option value="15;40">Large (15-40)</option>
             </select>
         </span>
+        <br>
+        <label>Game Speed: </label><input type="text" id="board_speed"/><button id="set_speed">Set</button>
+        <br>
     </div>
 </body>
 </html>

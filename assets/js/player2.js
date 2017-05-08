@@ -2,12 +2,14 @@ var GamePlay = {
     init: function() {
         GamePlay.canvas = document.getElementById('game_view');
         $('.pause').bind('click', function() { GamePlay.mode = "pause";});
-        $('.play').bind('click', function() { GamePlay.mode = "play"; Board.processMove(); GamePlay.draw();});
-        $('.forward').bind('click', function() { Board.processMove(); GamePlay.draw();});
+        $('.play').bind('click', function() { GamePlay.mode = "play"; GamePlay.nextMove();});
+        $('.forward').bind('click', function() { GamePlay.nextMove();});
         $('.newgame').bind('click', function() { GamePlay.setupNewGame();});
         $('.reset').bind('click', function() { Board.reset();});
         $('#set_board').bind('click', function() { GamePlay.setBoardNumber();});
         $('#board_number').bind('keyup', function(e) { if(e.keyCode == 13) {GamePlay.setBoardNumber();}});
+        $('#set_speed').bind('click', function() { GamePlay.setBoardSpeed();});
+        $('#board_speed').bind('keyup', function(e) { if(e.keyCode == 13) {GamePlay.setBoardSpeed();}});
 
         $('#check_breadcrumbs').click(function(evt) {
           if (evt.srcElement.checked) {
@@ -17,6 +19,21 @@ var GamePlay = {
           }
         });
 
+        $('#check_autoplay').click(function(evt) {
+          if (evt.srcElement.checked) {
+            GamePlay.autoplay = true;
+            GamePlay.mode = "play";
+            Board.processMove();
+            GamePlay.draw();
+          } else {
+            GamePlay.autoplay = false;
+          }
+        });        
+        
+        GamePlay.worksafe = false;
+        
+        GamePlay.gameOver = false;
+        GamePlay.autoplay = false;
         GamePlay.show_breadcrumbs = false;
         var itemImageUrls = ["assets/images/FruitApple.png", "assets/images/FruitBanana.png", "assets/images/FruitCherry.png", "assets/images/FruitMelon.png", "assets/images/FruitOrange.png"];
         GamePlay.itemImages = new Array();
@@ -25,6 +42,8 @@ var GamePlay = {
             img.src = itemImageUrls[i];
             GamePlay.itemImages[i] = img;
         }
+        GamePlay.boardSpeed = 10;
+        $('#board_speed').val(GamePlay.boardSpeed);
         GamePlay.player_one_image = new Image();
         GamePlay.player_one_image.src = "assets/images/FruitBlueBot.png";
         GamePlay.player_two_image = new Image();
@@ -38,7 +57,24 @@ var GamePlay = {
         GamePlay.itemImages[itemImageUrls.length - 1].onload = function(){
             GamePlay.setupNewGame();
         };
+        
+        // Code added to track games over time
+        GamePlay.p1wins = 0;
+        GamePlay.p2wins = 0;
+        GamePlay.ties = 0;
+        
 
+    },
+    nextMove: function() {
+        if (!GamePlay.gameOver) {
+            Board.processMove(); 
+            GamePlay.draw();
+        } else {
+            if (GamePlay.autoplay) {
+                // Game is over, and autoplay is on. let's start a new game
+                GamePlay.setupNewGame();
+            }
+        }
     },
     setupNewGame: function(boardNumber) {
         // Create a new board setup according to the following priority:
@@ -65,26 +101,42 @@ var GamePlay = {
 
         Board.newGame();
         GamePlay.itemTypeCount = get_number_of_item_types();
-        document.getElementById('grid').width = GamePlay.itemTypeCount * 50 + WIDTH * 50;
-        document.getElementById('grid').height = HEIGHT * 50;
-        document.getElementById('game_view').width = GamePlay.itemTypeCount * 50 + WIDTH * 50;
-        document.getElementById('game_view').height = HEIGHT * 50;
+        if (GamePlay.worksafe) {
+            // This doesn't seem to actually do anything, but i think it should... leave it the same for now.
+            document.getElementById('grid').width = GamePlay.itemTypeCount * 50 + WIDTH * 50;
+            document.getElementById('grid').height = HEIGHT * 50;
+            document.getElementById('game_view').width = GamePlay.itemTypeCount * 50 + WIDTH * 50;
+            document.getElementById('game_view').height = HEIGHT * 50;
+        } else {
+            
+            document.getElementById('grid').width = GamePlay.itemTypeCount * 50 + WIDTH * 50;
+            document.getElementById('grid').height = HEIGHT * 50;
+            document.getElementById('game_view').width = GamePlay.itemTypeCount * 50 + WIDTH * 50;
+            document.getElementById('game_view').height = HEIGHT * 50;
+        }
+
         $('#buttons').css('padding-left', GamePlay.itemTypeCount * 50);
         $('#buttons').css('padding-top', HEIGHT * 50);
+        GamePlay.gameOver = false;
         Grid.draw();
         GamePlay.start();
     },
     start: function() {
-        GamePlay.mode = "pause";
+        if (!GamePlay.autoplay) {
+            GamePlay.mode = "pause";
+        }
         GamePlay.draw();
     },
     draw: function() {
         var ctx = GamePlay.canvas.getContext('2d');
         ctx.clearRect(0,0,GamePlay.canvas.width,GamePlay.canvas.height);
+        if (!GamePlay.worksafe) {
         GamePlay.drawItems(ctx, Board.board, Board.history);
         GamePlay.drawPlayerTwo(ctx, Board.board);
         GamePlay.drawPlayerOne(ctx, Board.board);
         GamePlay.displayScore(ctx, Board.board);
+        }
+        
         if (GamePlay.mode == "play") {
            var score = Board.checkGameOver();
            Board.checkTimeout();
@@ -94,25 +146,41 @@ var GamePlay = {
                    ctx.fillStyle = "#000";
                    ctx.fillText("Player 1 wins!", 0, 275);
                    console.log("Player 1 wins!");
+                   GamePlay.p1wins += 1;
+                   GamePlay.gameOver = true;
                }
                if (score < 0) {
                    ctx.font = "30px Arial";
                    ctx.fillStyle = "#000";
                    ctx.fillText("Player 2 wins!", 0, 275);
                    console.log("Player 2 wins!");
+                   GamePlay.p2wins += 1;
+                   GamePlay.gameOver = true;
                }
                if (score == 0) {
                    ctx.font = "30px Arial";
                    ctx.fillStyle = "#000";
                    ctx.fillText("Tie!", 0, 275);
                    console.log("Tie!");
+                   GamePlay.ties += 1;
+                   GamePlay.gameOver = true;
                }
-               GamePlay.mode = "pause";
-               return;
+               
+               GamePlay.displayMatchPoints(ctx, Board.board);
+               
+               if (!GamePlay.autoplay) {
+                GamePlay.mode = "pause";
+                return;
+               } else {
+                   GamePlay.setupNewGame();
+               }
+               
            }
+           GamePlay.displayMatchPoints(ctx, Board.board);
            Board.processMove();
-           setTimeout(function() {GamePlay.draw();}, 500);
+           setTimeout(function() {GamePlay.draw();}, GamePlay.boardSpeed);
         } else {
+           GamePlay.displayMatchPoints(ctx, Board.board);
            GamePlay.mode = "pause";
         }
     },
@@ -145,6 +213,14 @@ var GamePlay = {
             ctx.drawImage(GamePlay.itemImages[i], 52*i+15, 205, 25, 25);
         }
     },
+    displayMatchPoints: function(ctx, state) {
+        ctx.font = "18px Arial";
+        ctx.fillStyle = "#000";
+        ctx.fillText("P1W : T : P2W", 0, 350);
+        ctx.font = "18px Arial";
+        ctx.fillStyle = "#000";
+        ctx.fillText(GamePlay.p1wins.toString() + " : " + GamePlay.ties.toString() + " : " + GamePlay.p2wins.toString(), 0, 375);
+    },
     drawPlayerOne: function(ctx, state) {
         ctx.drawImage(GamePlay.player_one_image, GamePlay.itemTypeCount * 50 + Board.myX * 50 + 2, Board.myY * 50 + 2);
     },
@@ -174,6 +250,16 @@ var GamePlay = {
             GamePlay.setupNewGame(boardNumber);
         } else {
             GamePlay.setupNewGame();
+        }
+    },
+    setBoardSpeed: function() {
+        var boardSpeed;
+        
+        boardSpeed = parseInt($('#board_speed').val());
+        if (!isNaN(boardSpeed)) {
+            GamePlay.boardSpeed = boardSpeed;
+        } else {
+            GamePlay.boardSpeed = 500;
         }
     }
 }

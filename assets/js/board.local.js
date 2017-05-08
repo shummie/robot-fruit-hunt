@@ -1,4 +1,4 @@
-// Hacks to make "SimpleBot" player 2 lol
+// Modified to allow for local play.
 var Board = {
     init: function(boardNumber) {
         var fullBoard;
