@@ -1,22 +1,10 @@
+
 function new_game_2() {
+    SimpleBot.newGame(2);
 }
 
 function make_move_2() {
-   var board = get_board();
-
-  // we found an item! take it!
-   if (board[get_my_x()][get_my_y()] > 0) {
-       return TAKE;
-   }
-
-   var rand = Math.random() * 2;
-
-   if (rand < 1) return NORTH;
-   if (rand < 2) return SOUTH;
-   // if (rand < 3) return EAST;
-   // if (rand < 4) return WEST;
-
-   return PASS;
+   return SimpleBot.makeMove();
 }
 
 // Optionally include this function if you'd like to always reset to a 
@@ -26,3 +14,4 @@ function make_move_2() {
 //function default_board_number() {
 //    return 123;
 //}
+
