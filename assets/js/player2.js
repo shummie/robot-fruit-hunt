@@ -113,12 +113,13 @@ var GamePlay = {
             document.getElementById('grid').height = HEIGHT * 50;
             document.getElementById('game_view').width = GamePlay.itemTypeCount * 50 + WIDTH * 50;
             document.getElementById('game_view').height = HEIGHT * 50;
+            Grid.draw();
         }
 
         $('#buttons').css('padding-left', GamePlay.itemTypeCount * 50);
         $('#buttons').css('padding-top', HEIGHT * 50);
         GamePlay.gameOver = false;
-        Grid.draw();
+
         GamePlay.start();
     },
     start: function() {
